@@ -1,6 +1,5 @@
 "use client";
 
-import { API_ENDPOINTS } from "@/api-endpoints";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,13 +8,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { apiClient } from "@/config/api-client";
-import { useRouter } from "next/navigation";
+
+import api from "@/config/api-client";
+import env from "@/config/env";
+
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { ReactNode, useState } from "react";
 
 type SocialProvider = {
-  provider: string;
+  provider: "google" | "github";
   icon: ReactNode;
 };
 
@@ -46,23 +48,24 @@ const SOCIAL_PROVIDERS: SocialProvider[] = [
 
 function AuthPage() {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
-  const handleLogin = async (provider: string) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const callbackURL =
+    searchParams.get("callbackURl") || env.NEXT_PUBLIC_BASE_URL;
+
+  const handleLogin = async (provider: "google" | "github") => {
     setLoading(true);
 
-    const { data } = await apiClient.post<{
-      redirect: boolean;
-      url: string;
-    }>(API_ENDPOINTS.AUTH.SOCIAL_LOGIN, {
+    const { redirect, url } = await api.auth.socialLogin({
       provider,
-      callbackURL: `${process.env.NEXT_PUBLIC_BASE_URL}/auth`,
+      callbackURL,
     });
-
     setLoading(false);
 
-    if (data.redirect) {
-      router.push(data.url);
+    if (redirect) {
+      router.push(url);
     }
   };
 

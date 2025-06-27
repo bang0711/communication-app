@@ -1,21 +1,12 @@
-import { getCookies } from "@/lib/get-cookies";
-import axios from "axios";
+import { AuthApi } from "@/api-handler/auth";
 
-export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: true, // Include credentials for cross-origin requests
-});
+class ApiClient {
+  public readonly auth: AuthApi;
 
-apiClient.interceptors.request.use(async (config) => {
-  const { betterAuthCookie } = await getCookies();
-
-  if (betterAuthCookie) {
-    config.headers["Authorization"] = `Bearer ${betterAuthCookie.value}`;
-    config.headers["session_token"] = `Bearer ${betterAuthCookie.value}`;
+  constructor() {
+    this.auth = new AuthApi();
   }
+}
 
-  return config;
-});
+export const api = new ApiClient();
+export default api;

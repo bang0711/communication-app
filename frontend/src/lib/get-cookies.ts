@@ -5,8 +5,9 @@ import { cookies } from "next/headers";
 export const getCookies = async () => {
   const cookiesStore = await cookies();
 
-  const betterAuthCookie = cookiesStore.get("auth-token.session_token");
+  const token = cookiesStore.get("token");
+
   return {
-    betterAuthCookie,
+    token,
   };
 };
